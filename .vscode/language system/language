@@ -1,0 +1,106 @@
+import random
+import json
+import speech_recognition as sr
+from gtts import gTTS
+import os
+
+# Vocabulary database (English to Spanish)
+vocab = {
+    "Hello": "Hola",
+    "Thank you": "Gracias",
+    "Goodbye": "Adiós",
+    "Please": "Por favor",
+    "Yes": "Sí",
+    "No": "No",
+    "How are you?": "¿Cómo estás?",
+    "Good morning": "Buenos días",
+    "Good night": "Buenas noches",
+    "See you later": "Hasta luego"
+}
+
+# Function to load user progress
+def load_progress():
+    try:
+        with open("progress.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"correct": 0, "wrong": 0}
+
+# Function to save user progress
+def save_progress(progress):
+    with open("progress.json", "w") as f:
+        json.dump(progress, f)
+
+# Function to conduct a quiz
+def quiz():
+    progress = load_progress()
+    words = list(vocab.keys())
+    random.shuffle(words)
+    
+    print("\n--- Vocabulary Quiz ---")
+    for word in words:
+        user_input = input(f"What is the translation of '{word}'? ").strip()
+        
+        if user_input.lower() == vocab[word].lower():
+            print("✅ Correct!\n")
+            progress["correct"] += 1
+        else:
+            print(f"❌ Wrong! The correct answer is '{vocab[word]}'\n")
+            progress["wrong"] += 1
+    
+    save_progress(progress)
+    print(f"Your Progress: {progress['correct']} correct, {progress['wrong']} wrong")
+
+# Function for pronunciation practice
+def pronunciation_practice():
+    recognizer = sr.Recognizer()
+    word = random.choice(list(vocab.keys()))
+    
+    print(f"\n🎤 Say the word: '{word}' in Spanish")
+    
+    tts = gTTS(text=vocab[word], lang="es")
+    tts.save("word.mp3")
+    os.system("start word.mp3" if os.name == "nt" else "mpg321 word.mp3")
+    
+    with sr.Microphone() as source:
+        print("Listening...")
+        try:
+            audio = recognizer.listen(source, timeout=5)
+            user_speech = recognizer.recognize_google(audio, language="es")
+            print(f"You said: {user_speech}")
+
+            if user_speech.lower() == vocab[word].lower():
+                print("✅ Great pronunciation!\n")
+            else:
+                print(f"❌ Incorrect! The correct pronunciation is '{vocab[word]}'\n")
+        except sr.UnknownValueError:
+            print("⚠ Could not understand, try again.\n")
+        except sr.RequestError:
+            print("⚠ Error connecting to speech recognition service.\n")
+
+# Main menu
+def main():
+    while True:
+        print("\n--- Language Learning System ---")
+        print("1. Take a Vocabulary Quiz")
+        print("2. Practice Pronunciation")
+        print("3. View Progress")
+        print("4. Exit")
+        
+        choice = input("Enter your choice: ").strip()
+        
+        if choice == "1":
+            quiz()
+        elif choice == "2":
+            pronunciation_practice()
+        elif choice == "3":
+            progress = load_progress()
+            print(f"\nYour Progress: {progress['correct']} correct, {progress['wrong']} wrong")
+        elif choice == "4":
+            print("Goodbye! Happy Learning!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == "__main__":
+    main()
