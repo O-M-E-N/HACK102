@@ -42,10 +42,10 @@ def quiz():
         user_input = input(f"What is the translation of '{word}'? ").strip()
         
         if user_input.lower() == vocab[word].lower():
-            print("✅ Correct!\n")
+            print(" Correct!\n")
             progress["correct"] += 1
         else:
-            print(f"❌ Wrong! The correct answer is '{vocab[word]}'\n")
+            print(f" Wrong! The correct answer is '{vocab[word]}'\n")
             progress["wrong"] += 1
     
     save_progress(progress)
@@ -70,13 +70,13 @@ def pronunciation_practice():
             print(f"You said: {user_speech}")
 
             if user_speech.lower() == vocab[word].lower():
-                print("✅ Great pronunciation!\n")
+                print("Great pronunciation!\n")
             else:
-                print(f"❌ Incorrect! The correct pronunciation is '{vocab[word]}'\n")
+                print(f" Incorrect! The correct pronunciation is '{vocab[word]}'\n")
         except sr.UnknownValueError:
-            print("⚠ Could not understand, try again.\n")
+            print("Could not understand, try again.\n")
         except sr.RequestError:
-            print("⚠ Error connecting to speech recognition service.\n")
+            print(" Error connecting to speech recognition service.\n")
 
 # Main menu
 def main():
